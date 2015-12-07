@@ -30,3 +30,11 @@ class Test_AttributesTranslations(unittest.TestCase):
         attr = 'toto_de'
 
         self.assertEqual('toto_de', getFallbackLangMatch(queryableAttrs, suffix, attr, suffixAttr))
+
+    def test_test(self):
+        queryableAttrs = ['_frtoto', 'toto_it', 'toto_de']
+        suffix = '_it'
+        suffixAttr = '_de'
+        attr = 'toto'
+
+        self.assertEqual('_frtoto', getFallbackLangMatch(queryableAttrs, suffix, attr, suffixAttr))
