@@ -205,23 +205,13 @@ class Vector(GeoInterface):
             settings = get_current_registry().settings
             availableLangs = settings['available_languages'].replace(' ', '|')
             for attr in cls.__queryable_attributes__:
-                match = re.search(r'(_(%s))$' % availableLangs, attr)
-                if match is not None:
-                    # Lang specific attr
-                    suffix = '_%s' % lang
-                    suffixAttr = match.groups()[0]
-                    fallbackMatch = getFallbackLangMatch(
-                        cls.__queryable_attributes__,
-                        suffix,
-                        attr,
-                        suffixAttr
-                    )
-                    if fallbackMatch not in queryableAttributes:
-                        queryableAttributes.append(fallbackMatch)
-                else:
-                    # Not based on lang
-                    queryableAttributes.append(attr)
-        return queryableAttributes
+                fallbackMath = getFallbackLangMatch(
+                    cls.__queryable_attributes__,
+                    lang,
+                    availableLangs,
+                    attr
+                )
+        return queryableAttributes.append(fallbackMath)
 
     def getOrmColumnsNames(self, excludePkey=True):
         primaryKeyColumn = self.__mapper__.get_property_by_column(self.primary_key_column()).key
@@ -275,23 +265,27 @@ def extentArea(i):
     return geom.area
 
 
-def getFallbackLangMatch(queryableAttrs, suffix, attr, suffixAttr):
+def getFallbackLangMatch(queryableAttrs, lang, availableLangs, attr):
     # de and fr at least are defined
     def replaceLast(sourceString, replaceWhat, replaceWith):
         head, sep, tail = sourceString.rpartition(replaceWhat)
         return head + replaceWith + tail
 
-    attrToMatch = replaceLast(attr, suffixAttr, suffix)
-    if attrToMatch in queryableAttrs:
-        return attrToMatch
+    match = re.search(r'(_(%s))$' % availableLangs, attr)
+    if match is not None:
+        # Lang specific attr
+        suffix = '_%s' % lang
+        suffixAttr = match.groups()[0]
+
+        attrToMatch = replaceLast(attr, suffixAttr, suffix)
+        if attrToMatch not in queryableAttrs:
+            if suffix in ('_rm', '_en'):
+                suffix = '_de'
+                attrToMatch = replaceLast(attr, suffixAttr, suffix)
+            elif suffix == '_it':
+                suffix = '_fr'
+                attrToMatch = replaceLast(attr, suffixAttr, suffix)
+            return attrToMatch
     else:
-        if suffix in ('_rm', '_en'):
-            suffix = '_de'
-            attrToMatch = replaceLast(attr, suffixAttr, suffix)
-            if attrToMatch in queryableAttrs:
-                return attrToMatch
-        elif suffix == '_it':
-            suffix = '_fr'
-            attrToMatch = replaceLast(attr, suffixAttr, suffix)
-            if attrToMatch in queryableAttrs:
-                return attrToMatch
+        # Not based on lang
+        return attr

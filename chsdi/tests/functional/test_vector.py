@@ -7,34 +7,26 @@ from chsdi.models.vector import getFallbackLangMatch
 
 class Test_AttributesTranslations(unittest.TestCase):
 
-    def test_no_lang_specific_attribute(self):
+    def test_lang_specific_attribute(self):
         queryableAttrs = ['toto', 'tutu', 'tata']
-        suffix = '_de'
-        suffixAttr = '_de'
+        lang = 'de'
+        availableLangs = 'de'
         attr = 'toto'
 
-        self.assertEqual(None, getFallbackLangMatch(queryableAttrs, suffix, attr, suffixAttr))
+        self.assertEqual('toto', getFallbackLangMatch(queryableAttrs, lang, availableLangs, attr))
 
-    def test_lang_specific_attribute(self):
+    def test_no_lang_specific_attribute(self):
         queryableAttrs = ['toto', 'toto_de', 'toto_fr']
-        suffix = '_fr'
-        suffixAttr = '_fr'
+        lang = 'fr'
+        availableLangs = 'fr'
         attr = 'toto_fr'
 
-        self.assertEqual('toto_fr', getFallbackLangMatch(queryableAttrs, suffix, attr, suffixAttr))
+        self.assertEqual(None, getFallbackLangMatch(queryableAttrs, lang, availableLangs, attr))
 
     def test_attribute_fallback_to_de(self):
         queryableAttrs = ['toto', 'toto_de', 'toto_fr']
-        suffix = '_en'
-        suffixAttr = '_de'
+        lang = 'en'
+        availableLangs = 'de'
         attr = 'toto_de'
 
-        self.assertEqual('toto_de', getFallbackLangMatch(queryableAttrs, suffix, attr, suffixAttr))
-
-    def test_test(self):
-        queryableAttrs = ['_frtoto', 'toto_it', 'toto_de']
-        suffix = '_it'
-        suffixAttr = '_de'
-        attr = 'toto'
-
-        self.assertEqual('_frtoto', getFallbackLangMatch(queryableAttrs, suffix, attr, suffixAttr))
+        self.assertEqual('toto_de', getFallbackLangMatch(queryableAttrs, lang, availableLangs, attr))
