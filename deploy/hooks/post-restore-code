@@ -9,17 +9,16 @@ PROJECT_NAME=$1
 CODE_DIR=$2
 
 cd $CODE_DIR
-# make sure that buildout is correctly installed
-##python bootstrap.py --distribute --version 1.5.2 > /dev/null
 
-if [ -f buildout_$TARGET.cfg ]; then
-    buildout/bin/buildout -c buildout_$TARGET.cfg
-else
-    buildout/bin/buildout
+if [ -f rc_$TARGET ]; then
+  make $TARGET
+  make printwar APACHE_BASE_PATH=main
 fi
 
 if [[ $CODE_DIR == */branch/* ]]; then
-    buildout/bin/buildout -c buildout_branch.cfg
+  make clean
+  source rc_branch
+  make all
 fi
 
 exit $?
