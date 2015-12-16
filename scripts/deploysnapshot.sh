@@ -25,13 +25,13 @@ then
     if [ "$2" == "int" ]
     then
       echo "Running nose tests with integration cluster in $SNAPSHOTDIR"
-      ./nose_run.sh -i
+      scripts/nose_run.sh -i
     fi
 
     if [ "$2" == "prod" ]
     then
       echo "Running nose tests with production cluster in $SNAPSHOTDIR"
-      ./nose_run.sh -p
+      scripts/nose_run.sh -p
     fi
 else
     echo "You have disabled nosetests!"
