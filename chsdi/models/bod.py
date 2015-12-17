@@ -108,7 +108,7 @@ class LayersConfig(Base):
                         config['resolutions'] = \
                             self._getResolutionsFromMatrixSet(
                                 val
-                            )
+                        )
                 else:
                     config[k] = val
 
