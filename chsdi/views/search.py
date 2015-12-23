@@ -14,6 +14,11 @@ from chsdi.lib.helpers import (
 from chsdi.lib.sphinxapi import sphinxapi
 from chsdi.lib import mortonspacekey as msk
 
+import logging
+log = logging.getLogger(__name__)
+
+import pprint
+
 
 class Search(SearchValidation):
 
@@ -44,10 +49,14 @@ class Search(SearchValidation):
         self.typeInfo = request.params.get('type')
         self.limit = request.params.get('limit')
         self.varnish_authorized = request.headers.get('X-SearchServer-Authorized', 'false').lower() == 'true'
+        self.referer = request.headers.get('referer', 'noref')
 
         self.geodataStaging = request.registry.settings['geodata_staging']
         self.results = {'results': []}
         self.request = request
+        log.warn('[_parse_address] request enviornment: %s', pprint.pformat(self.request.environ))
+        log.warn('[_parse_address] referer: %s', self.referer)
+        log.warn('[_parse_address] X-SearchServer-Authorized: %s', self.varnish_authorized)
 
     @view_config(route_name='search', renderer='jsonp')
     def search(self):

@@ -120,7 +120,7 @@ class TestLocation(TestVarnish):
 
     def test_location_cached_no_referer(self):
 
-        payload = {'type': 'locations', 'searchText': 'fontenay 10 lausanne'}
+        payload = {'type': 'locations', 'searchText': 'fontenay 10 lausanne', '_id': self.hash()}
         r = requests.get(self.api_url + '/%d/rest/services/api/SearchServer' % self.timestamp(), params=payload)
 
         returned_attrs = r.json()['results'][0]['attrs'].keys()
@@ -130,7 +130,7 @@ class TestLocation(TestVarnish):
 
     def test_location_cached_good_referer(self):
 
-        payload = {'type': 'locations', 'searchText': 'fontenay 10 lausanne'}
+        payload = {'type': 'locations', 'searchText': 'fontenay 10 lausanne', '_id': self.hash()}
         headers = {'referer': 'http://unittest.geo.admin.ch'}
 
         r = requests.get(self.api_url + '/%d/rest/services/api/SearchServer' % self.timestamp(), params=payload, headers=headers)
