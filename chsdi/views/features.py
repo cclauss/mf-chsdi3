@@ -15,6 +15,7 @@ from sqlalchemy import text
 from geoalchemy2.types import Geometry
 
 from chsdi.lib.validation.mapservice import MapServiceValidation
+from chsdi.lib.validation.geometryservice import GeometryServiceValidation
 from chsdi.lib.helpers import format_query
 from chsdi.lib.filters import full_text_search
 from chsdi.models import models_from_bodid, queryable_models_from_bodid, oereb_models_from_bodid
@@ -38,6 +39,24 @@ class FeatureParams(MapServiceValidation):
         self.returnGeometry = request.params.get('returnGeometry')
         self.translate = request.translate
         self.request = request
+        self.varnish_authorized = request.headers.get('X-SearchServer-Authorized', 'false').lower() == 'true'
+
+
+class GeometryParams(GeometryServiceValidation):
+
+    def __init__(self, request):
+        super(GeometryParams, self).__init__()
+        self.mapName = request.matchdict.get('map')
+        self.hasMap(request.db, self.mapName)
+        self.cbName = request.params.get('callback')
+        self.lang = request.lang
+        self.geodataStaging = request.registry.settings['geodata_staging']
+        self.translate = request.translate
+        self.request = request
+        self.geometry = request.params.get('geometry')
+        self.geometryType = request.params.get('geometryType')
+        self.groupby = request.params.get('groupby')
+        self.layers = request.params.get('layers', 'all')
         self.varnish_authorized = request.headers.get('X-SearchServer-Authorized', 'false').lower() == 'true'
 
 # for releases requests
@@ -94,7 +113,6 @@ def _get_attributes_params(request):
     params = FeatureParams(request)
     params.layerId = request.matchdict.get('layerId')
     params.attribute = request.matchdict.get('attribute')
-
     return params
 
 
@@ -335,6 +353,57 @@ def _render_feature_template(vectorModel, feature, request, extended=False):
         request=request)
 
 
+def _get_areas_for_params(params, models):
+    ''' Returns a generator function that yields
+    a cut areas, layerIds and group attribute. '''
+    groupbyIdx = 0
+    for vectorLayer in models:
+        bodId = vectorLayer.keys()[0]
+        if params.groupby is not None:
+            models = [
+                m for m in vectorLayer[bodId]['models']
+                if hasattr(m, params.groupby[groupbyIdx])
+            ]
+            if len(models) == 0:
+                raise exc.HTTPBadRequest('Attribute %s not found for layer %s' % (
+                    params.groupby[groupbyIdx], bodId))
+        else:
+            models = vectorLayer[bodId]['models']
+        for model in models:
+            geomFilter = model.geom_intersects(
+                params.geometry,
+                params.geometryType
+            )
+            cutGeoms = model.geom_intersection(
+                params.geometry,
+                params.geometryType
+            )
+            if params.groupby is not None:
+                query = params.request.db.query(
+                    getattr(model, params.groupby[groupbyIdx]).label('groupbyValue'),
+                    func.Sum(func.ST_Area(cutGeoms)).label('area')
+                ).filter(
+                    geomFilter
+                ).group_by(
+                    getattr(model, params.groupby[groupbyIdx])
+                )
+            else:
+                query = params.request.db.query(
+                    func.Sum(func.ST_Area(cutGeoms)).label('area')
+                ).filter(
+                    geomFilter
+                )
+            for feature in query:
+                yield {
+                    bodId: {
+                        'area': float(feature.area) / (1000.0 * 1000.0),  # convert to square kilometers
+                        'groupby': params.groupby[groupbyIdx] if params.groupby is not None else None,
+                        'groupbyvalue': feature.groupbyValue if hasattr(feature, 'groupbyValue') else None
+                    }
+                }
+        groupbyIdx += 1
+
+
 def _get_features_for_filters(params, models, maxFeatures=None, where=None):
     ''' Returns a generator function that yields
     a feature. '''
@@ -513,6 +582,40 @@ def _format_search_text(columnType, searchText):
             raise exc.HTTPBadRequest('Please provide a float')
     elif isinstance(columnType, Geometry):
         raise exc.HTTPBadRequest('Find operations cannot be performed on geometry columns')
+
+
+@view_config(route_name='cut', renderer='jsonp')
+def _cut(request):
+    params = GeometryParams(request)
+    layerIds = params.layers
+    models = []
+    # Organize models per layer
+    for layerId in layerIds:
+        modelsForLayer = models_from_name(layerId)
+        if modelsForLayer is not None:
+            modelsPerLayer = {layerId: {'models': modelsForLayer}}
+            models.append(modelsPerLayer)
+
+    if len(models) == 0:
+        raise exc.HTTPBadRequest(
+            'No GeoTable was found for %s' % ' '.join(layerIds))
+    results = {}
+    areas_gen = _get_areas_for_params(params, models)
+    while True:
+        try:
+            feature = next(areas_gen)
+        except InternalError as e:
+            raise exc.HTTPInternalServerError(
+                'Your request generated the following database error: %s' % e)
+        except StopIteration:
+            break
+        bodId = feature.keys()[0]
+        if bodId not in results:
+            results[bodId] = [feature[bodId]]
+        else:
+            results[bodId].append(feature[bodId])
+    # In square meters
+    return results
 
 
 def has_long_geometry(feature):
