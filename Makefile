@@ -246,7 +246,7 @@ deployint:
 	scripts/deploysnapshot.sh $(SNAPSHOT) int
 
 .PHONY: deployprod
-deployint:
+deployprod:
 	scripts/deploysnapshot.sh $(SNAPSHOT) prod
 
 rc_branch.mako:
