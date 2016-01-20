@@ -116,7 +116,7 @@ prod:
 	./scripts/build.sh prod
 
 .PHONY: serve
-serve: .venv node_modules development.ini
+serve:
 	PYTHONPATH=${PYTHONPATH} ${PSERVE_CMD} development.ini --reload
 
 .PHONY: test
