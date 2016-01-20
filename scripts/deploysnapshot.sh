@@ -37,7 +37,10 @@ else
     echo "You have disabled nosetests!"
 fi
 
-# back to working directory for the deploy command
+# Remove git before deploying
+rm -rf .git*
+
+# Back to working directory for the deploy command
 cd $cwd
 sudo -u deploy deploy -r deploy/deploy.cfg $2 $SNAPSHOTDIR
 
