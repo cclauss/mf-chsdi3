@@ -98,6 +98,9 @@ You can disable the running of the nosetests against the target backends by addi
 `notests` parameter to the snapshot command. This is handy in an emergency (when
 deploying an old known-to-work snapshot) or when you have to re-deploy
 a snapshot that you know has passed the tests for the given backend.
+To disable the tests, use the following command:
+
+`make deployint SNAPSHOT=201512011411 NO_TESTS=notests`
 
 Use `notests` parameter with care, as it removes a level of tests.
 

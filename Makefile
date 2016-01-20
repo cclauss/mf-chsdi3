@@ -8,6 +8,7 @@ GIT_BRANCH ?= $(shell git rev-parse --symbolic-full-name --abbrev-ref HEAD)
 HTTP_PROXY := http://ec2-52-28-118-239.eu-central-1.compute.amazonaws.com:80
 INSTALL_DIRECTORY := .venv
 MODWSGI_USER := www-data
+NO_TEST ?=
 NODE_DIRECTORY := node_modules
 PRINT_INPUT := print/$(BASEWAR) print/*.yaml print/*.png print/WEB-INF
 PRINT_OUTPUT_BASE := /srv/tomcat/tomcat1/webapps/print-chsdi3-$(APACHE_BASE_PATH)
@@ -243,11 +244,15 @@ deploydev:
 
 .PHONY: deployint
 deployint:
-	scripts/deploysnapshot.sh $(SNAPSHOT) int
+	scripts/deploysnapshot.sh $(SNAPSHOT) int $(NO_TESTS)
 
 .PHONY: deployprod
 deployprod:
-	scripts/deploysnapshot.sh $(SNAPSHOT) prod
+	scripts/deploysnapshot.sh $(SNAPSHOT) prod $(NO_TESTS)
+
+.PHONY: deploydemo
+deploydemo:
+	scritps/deploysnapshot.sh $(SNAPSHOT) demo
 
 rc_branch.mako:
 	@echo "${GREEN}Branch has changed${RESET}";
