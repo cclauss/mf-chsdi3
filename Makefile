@@ -51,7 +51,6 @@ GREEN := $(shell tput setaf 2)
 # Versions
 # We need GDAL which is hard to install in a venv, modify PYTHONPATH to use the
 # system wide version.
-GDAL_VERSION ?= 1.9.0
 PYTHON_VERSION := $(shell python --version 2>&1 | cut -d ' ' -f 2 | cut -d '.' -f 1,2)
 PYTHONPATH ?= .venv/lib/python${PYTHON_VERSION}/site-packages:/usr/lib64/python${PYTHON_VERSION}/site-packages
 
@@ -71,7 +70,6 @@ help:
 	@echo "- autolint           Run the autolinter"
 	@echo "- translate          Generate the translation files"
 	@echo "- doc                Generate the doc for api3.geo.admin.ch"
-	@echo "- gdal               Add GDAL"
 	@echo "- deploybranch       Deploy current branch to dev (must be pushed before hand)"
 	@echo "- deploybranchint    Deploy current branch to dev and int (must be pushed before hand)"
 	@echo "- deploybranchdemo   Deploy current branch to dev and demo (must be pushed before hand)"
@@ -96,7 +94,7 @@ help:
 	@echo
 
 .PHONY: all
-all: .venv gdal node_modules chsdi/static/css/extended.min.css \
+all: .venv node_modules chsdi/static/css/extended.min.css \
      apache/wsgi.conf apache/tomcat-print.conf development.ini \
      production.ini potomo doc fixrights
 
@@ -163,22 +161,6 @@ chsdi/locale/it/LC_MESSAGES/chsdi.mo: chsdi/locale/it/LC_MESSAGES/chsdi.po
 potomo: chsdi/locale/en/LC_MESSAGES/chsdi.mo chsdi/locale/fr/LC_MESSAGES/chsdi.mo \
         chsdi/locale/de/LC_MESSAGES/chsdi.mo chsdi/locale/fi/LC_MESSAGES/chsdi.mo \
         chsdi/locale/it/LC_MESSAGES/chsdi.mo
-
-.PHONY: gdal
-gdal: .venv
-	@if [ ! -d $(INSTALL_DIRECTORY)/build ]; \
-	then \
-		echo "${GREEN}Installing GDAL...${RESET}"; \
-		mkdir -p $(INSTALL_DIRECTORY)/build && \
-		${PIP_CMD} install --download $(INSTALL_DIRECTORY)/build GDAL==$(GDAL_VERSION) && \
-		cd $(INSTALL_DIRECTORY)/build && \
-		tar -xzf GDAL-$(GDAL_VERSION).tar.gz && \
-		cd GDAL-$(GDAL_VERSION) && \
-		../../../${PYTHON_CMD} setup.py build_ext --gdal-config=/usr/bin/gdal-config-64 --library-dirs=/usr/lib --include-dirs=/usr/include/gdal && \
-		../../../${PYTHON_CMD} setup.py install --root / && \
-		cd ../../.. && \
-		${PYTHON_CMD} -c "from osgeo import gdal; print('GDAL installed'); print(gdal.__version__, gdal.__file__)"; \
-	fi
 
 .PHONY: updateapi
 updateapi:
@@ -352,7 +334,7 @@ requirements.txt:
 	@echo "${GREEN}Install Cython before any deps as some need it to compile with optimizations...${RESET}";
 	@if [ ! -d $(INSTALL_DIRECTORY) ]; \
 	then \
-		virtualenv $(INSTALL_DIRECTORY); \
+		virtualenv $(INSTALL_DIRECTORY) --system-site-packages; \
 	  ${PIP_CMD} install -U pip; \
 	  ${PIP_CMD} install Cython; \
 	fi
