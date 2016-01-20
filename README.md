@@ -92,6 +92,7 @@ This will run the full nose tests **from inside the 201512011411 snapshot direct
 
 This will do the corresponding thing for prod (tests will be run **against prod backends**)
 The same is valid for demo too:
+
 `make deploydemo SNAPSHOT=201512011411`
 
 You can disable the running of the nosetests against the target backends by adding
@@ -167,6 +168,12 @@ If you need to work on printing and use your own war, you have to add the follow
 
 ```
 export PRINT_WAR=ltxxx
+```
+
+In order to create the shared war use:
+
+```
+make printwar APACHE_BASE_PATH=main
 ```
 
 # Python Code Styling

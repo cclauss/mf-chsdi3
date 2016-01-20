@@ -10,7 +10,7 @@ INSTALL_DIRECTORY := .venv
 MODWSGI_USER := www-data
 NO_TEST ?=
 NODE_DIRECTORY := node_modules
-PRINT_INPUT := print/$(BASEWAR) print/*.yaml print/*.png print/WEB-INF
+PRINT_INPUT := $(BASEWAR) *.yaml *.png WEB-INF
 PRINT_OUTPUT_BASE := /srv/tomcat/tomcat1/webapps/print-chsdi3-$(APACHE_BASE_PATH)
 PRINT_OUTPUT := $(PRINT_OUTPUT_BASE).war
 PRINT_TEMP_DIR := /var/cache/print
@@ -220,16 +220,15 @@ printconfig:
 printwar: printconfig
 	mkdir temp_$(APP_VERSION)
 	@echo "${GREEN}Updating print war...${RESET}"
-	cp -f print/$(BASEWAR) temp_$(APP_VERSION)/
-	jar uf temp_$(APP_VERSION)/$(BASEWAR) $(PRINT_INPUT)
-	@echo "${GREEN}Print war update successful creation has been successful."
-	@echo "Copying jar file from temp_$(APP_VERSION)/...${RESET}"
-	cp -f temp_$(APP_VERSION)/$(BASEWAR) $(PRINT_OUTPUT)
-	rm -rf $(PRINT_OUTPUT_BASE) && mkdir $(PRINT_OUTPUT_BASE) && cd $(PRINT_OUTPUT_BASE) && jar xf $(PRINT_OUTPUT)
+	cd print && jar cf ../temp_$(APP_VERSION)/print-chsdi3-$(APACHE_BASE_PATH).war $(PRINT_INPUT)
+	@echo "${GREEN}Print war creation was successful.${RESET}"
+	rm -rf $(PRINT_OUTPUT) $(PRINT_OUTPUT_BASE) # because of cp -i alias
+	cp -f temp_$(APP_VERSION)/print-chsdi3-$(APACHE_BASE_PATH).war $(PRINT_OUTPUT)
 	@echo "${GREEN}Removing temp directory${RESET}"
 	rm -rf temp_$(APP_VERSION)
 	@echo "${GREEN}Restarting tomcat...${RESET}"
 	sudo /etc/init.d/tomcat-tomcat1 restart
+	@echo "${GREEN}It may take a few seconds for $(PRINT_OUTPUT) directory to appear...${RESET}"
 
 # FIXME default target is always master
 # Remove when ready to be merged
