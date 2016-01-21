@@ -17,6 +17,7 @@ fi
 
 if [[ $CODE_DIR == */branch/* ]]; then
   make clean
+  make rc_branch
   source rc_branch
   make all
 fi
