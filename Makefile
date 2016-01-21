@@ -218,9 +218,9 @@ printwar: printconfig
 deploydev:
 	@if test "$(SNAPSHOT)" = "true"; \
 	then \
-			scripts/deploydev.sh -s $(GIT_BRANCH); \
+		scripts/deploydev.sh -s $(GIT_BRANCH); \
 	else \
-			scripts/deploydev.sh $(GIT_BRANCH); \
+		scripts/deploydev.sh $(GIT_BRANCH); \
 	fi
 
 .PHONY: deployint
@@ -335,8 +335,8 @@ requirements.txt:
 	@if [ ! -d $(INSTALL_DIRECTORY) ]; \
 	then \
 		virtualenv $(INSTALL_DIRECTORY) --system-site-packages; \
-	  ${PIP_CMD} install -U pip; \
-	  ${PIP_CMD} install Cython; \
+		${PIP_CMD} install -U pip; \
+		${PIP_CMD} install Cython; \
 	fi
 	${PYTHON_CMD} setup.py develop
 	${PIP_CMD} install Pillow==3.1.0
