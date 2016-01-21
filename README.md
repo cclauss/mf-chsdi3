@@ -49,7 +49,7 @@ Open .boto and Add (`/etc/boto.cfg` for main)
 
 Create a developer specific build configuration:
 
-    cp rc_example rc_user_<username>.cfg
+    cp rc_example rc_user_<username>
 
 Change the port number in the newly created buildout configuration file (In dev mode)
 
