@@ -105,6 +105,11 @@ To disable the tests, use the following command:
 
 Use `notests` parameter with care, as it removes a level of tests.
 
+Per default the deploy command uses the deploy configuration of the snapshot directory.
+If you want to use the deploy configuration of directory from which you are executing this command, you can use:
+
+`make deployint SNAPSHOT=201512011411 DEPLOYCONFIG=from_current_directory`
+
 # Deploying a branch
 
 Call the `make deploybranch` command **in your working directory** to deploy your current
