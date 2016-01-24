@@ -569,7 +569,7 @@ class TestGebauedeGeometry(TestsBase):
         headers = {'X-SearchServer-Authorized': 'true'}
         resp = self.testapp.get('/rest/services/ech/MapServer/ch.bfs.gebaeude_wohnungs_register/490830_0', headers=headers, status=200)
         self.assertEqual(resp.content_type, 'application/json')
-        self.assertTrue('geometry' in resp.json['feature'])
+        self.assertTrue('geometry' not in resp.json['feature'])
 
     def test_find_not_authorized(self):
         headers = {'X-SearchServer-Authorized': 'false'}
@@ -585,7 +585,7 @@ class TestGebauedeGeometry(TestsBase):
         resp = self.testapp.get('/rest/services/ech/MapServer/find', params=params, headers=headers, status=200)
         self.assertEqual(resp.content_type, 'application/json')
         self.assertTrue(len(resp.json['results']) >= 1)
-        self.assertTrue('geometry' in resp.json['results'][0])
+        self.assertTrue('geometry' not in resp.json['results'][0])
 
     def test_identify_not_authorized(self):
         headers = {'X-SearchServer-Authorized': 'false'}
@@ -605,7 +605,7 @@ class TestGebauedeGeometry(TestsBase):
         resp = self.testapp.get('/rest/services/ech/MapServer/identify', params=params, headers=headers, status=200)
         self.assertEqual(resp.content_type, 'application/json')
         self.assertTrue(len(resp.json['results']) >= 1)
-        self.assertTrue('geometry' in resp.json['results'][0])
+        self.assertTrue('geometry' not in resp.json['results'][0])
 
 
 class TestReleasesService(TestsBase):

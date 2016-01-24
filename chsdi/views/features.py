@@ -39,6 +39,8 @@ class FeatureParams(MapServiceValidation):
         self.translate = request.translate
         self.request = request
         self.varnish_authorized = request.headers.get('X-SearchServer-Authorized', 'false').lower() == 'true'
+        # We protect geometries per default (hack for this branch only)
+        self.varnish_authorized = False
 
 # for releases requests
 

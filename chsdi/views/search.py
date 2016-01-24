@@ -44,6 +44,8 @@ class Search(SearchValidation):
         self.typeInfo = request.params.get('type')
         self.limit = request.params.get('limit')
         self.varnish_authorized = request.headers.get('X-SearchServer-Authorized', 'false').lower() == 'true'
+        # We protect geometries per default (hack for this branch only)
+        self.varnish_authorized = False
 
         self.geodataStaging = request.registry.settings['geodata_staging']
         self.results = {'results': []}
