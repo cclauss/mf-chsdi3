@@ -205,13 +205,15 @@ class Vector(GeoInterface):
             settings = get_current_registry().settings
             availableLangs = settings['available_languages'].replace(' ', '|')
             for attr in cls.__queryable_attributes__:
-                fallbackMath = getFallbackLangMatch(
+                fallbackMatch = getFallbackLangMatch(
                     cls.__queryable_attributes__,
-                    lang,
                     availableLangs,
                     attr
                 )
-        return queryableAttributes.append(fallbackMath)
+                if fallbackMatch not in queryableAttributes:
+                    queryableAttributes.append(fallbackMatch)
+
+        return queryableAttributes
 
     def getOrmColumnsNames(self, excludePkey=True):
         primaryKeyColumn = self.__mapper__.get_property_by_column(self.primary_key_column()).key
@@ -265,7 +267,7 @@ def extentArea(i):
     return geom.area
 
 
-def getFallbackLangMatch(queryableAttrs, lang, availableLangs, attr):
+def getFallbackLangMatch(queryableAttrs, availableLangs, attr):
     # de and fr at least are defined
     def replaceLast(sourceString, replaceWhat, replaceWith):
         head, sep, tail = sourceString.rpartition(replaceWhat)
@@ -274,18 +276,23 @@ def getFallbackLangMatch(queryableAttrs, lang, availableLangs, attr):
     match = re.search(r'(_(%s))$' % availableLangs, attr)
     if match is not None:
         # Lang specific attr
-        suffix = '_%s' % lang
+        suffix = '_%s' % availableLangs
         suffixAttr = match.groups()[0]
 
         attrToMatch = replaceLast(attr, suffixAttr, suffix)
-        if attrToMatch not in queryableAttrs:
+        if attrToMatch in queryableAttrs:
+            return attrToMatch
+        else:
             if suffix in ('_rm', '_en'):
                 suffix = '_de'
                 attrToMatch = replaceLast(attr, suffixAttr, suffix)
+                if attrToMatch in queryableAttrs:
+                    return attrToMatch
             elif suffix == '_it':
                 suffix = '_fr'
                 attrToMatch = replaceLast(attr, suffixAttr, suffix)
-            return attrToMatch
+                if attrToMatch in queryableAttrs:
+                    return attrToMatch
     else:
         # Not based on lang
         return attr
