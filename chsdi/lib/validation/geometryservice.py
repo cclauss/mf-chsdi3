@@ -11,6 +11,7 @@ class GeometryServiceValidation(MapNameValidation):
 
     def __init__(self):
         super(GeometryServiceValidation, self).__init__()
+        self._clipper = None
         self._geometry = None
         self._geometryType = None
         self._returnGeometry = None
@@ -21,6 +22,14 @@ class GeometryServiceValidation(MapNameValidation):
             'esriGeometryPolygon',
             'esriGeometryEnvelope'
         )
+        self.geometryTypes = (
+            'Polygon',
+            'MultiPolygon'
+        )
+
+    @property
+    def clipper(self):
+        return self._clipper
 
     @property
     def geometry(self):
@@ -42,20 +51,36 @@ class GeometryServiceValidation(MapNameValidation):
     def chargeable(self):
         return self._chargeable
 
+    @clipper.setter
+    def clipper(self, value):
+        # Either a geometry or a clipper must be defined
+        if all((self._geometry, self._geometryType)):
+            return
+        if value is None:
+            raise HTTPBadRequest('Please provide a clipper (Required if geometry is not defined)')
+        temp = value.split(':')
+        if len(temp) != 2:
+            raise HTTPBadRequest('Unexpected clipper syntax. It should use the following syntax (layerBodId:featureId)')
+        else:
+            self._clipper = temp
+
     @geometry.setter
     def geometry(self, value):
+        if self._clipper:
+            return
         if value is None:
-            raise HTTPBadRequest('Please provide the parameter geometry  (Required)')
-        else:
-            try:
-                self._geometry = loads(value)
-            except ValueError:
-                raise HTTPBadRequest('Please provide a valid geometry')
+            raise HTTPBadRequest('Please provide the parameter geometry (Required if clipper is not defined)')
+        try:
+            self._geometry = loads(value)
+        except ValueError:
+            raise HTTPBadRequest('Please provide a valid geometry')
 
     @geometryType.setter
     def geometryType(self, value):
+        if self._clipper:
+            return
         if value is None:
-            raise HTTPBadRequest('Please provide the parameter geometryType  (Required)')
+            raise HTTPBadRequest('Please provide the parameter geometryType (Required if clipper is not defined)')
         if value not in self.esriGeometryTypes:
             raise HTTPBadRequest('Please provide a valid geometry type. Available: (%s)' % ', '.join(self.esriGeometryTypes))
         self._geometryType = value

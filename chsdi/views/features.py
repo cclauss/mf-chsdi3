@@ -53,8 +53,10 @@ class GeometryParams(GeometryServiceValidation):
         self.geodataStaging = request.registry.settings['geodata_staging']
         self.translate = request.translate
         self.request = request
-        self.geometry = request.params.get('geometry')
-        self.geometryType = request.params.get('geometryType')
+        if not request.params.get('clipper'):
+            self.geometry = request.params.get('geometry')
+            self.geometryType = request.params.get('geometryType')
+        self.clipper = request.params.get('clipper')
         self.groupby = request.params.get('groupby')
         self.layers = request.params.get('layers', 'all')
         self.varnish_authorized = request.headers.get('X-SearchServer-Authorized', 'false').lower() == 'true'
@@ -309,7 +311,7 @@ def _get_feature_service(request):
     return features
 
 
-def _get_features(params, extended=False):
+def _get_features(params, extended=False, process=True):
     ''' Returns exactly one feature or raises
     an excpetion '''
     featureIds = params.featureIds.split(',')
@@ -335,8 +337,9 @@ def _get_features(params, extended=False):
 
         if feature is None:
             raise exc.HTTPNotFound('No feature with id %s' % featureId)
-        feature = _process_feature(feature, params)
-        feature = {'feature': feature}
+        if process:
+            feature = _process_feature(feature, params)
+            feature = {'feature': feature}
         yield feature, vectorModel
 
 
@@ -370,14 +373,24 @@ def _get_areas_for_params(params, models):
         else:
             models = vectorLayer[bodId]['models']
         for model in models:
-            geomFilter = model.geom_intersects(
-                params.geometry,
-                params.geometryType
-            )
-            cutGeoms = model.geom_intersection(
-                params.geometry,
-                params.geometryType
-            )
+            if all((params.geometry, params.geometryType)):
+                geomFilter = model.geom_intersects(
+                    params.geometry
+                )
+                cutGeoms = model.geom_intersection(
+                    params.geometry
+                )
+            else:
+                params.layerId = params.clipper[0]
+                params.featureIds = params.clipper[1]
+                params.returnGeometry = True
+                feature, clipperModel = next(_get_features(params, process=False))
+                geomFilter = model.geom_intersects(
+                    feature.the_geom
+                )
+                cutGeoms = model.geom_intersection(
+                    feature.the_geom
+                )
             if params.groupby is not None:
                 query = params.request.db.query(
                     getattr(model, params.groupby[groupbyIdx]).label('groupbyValue'),
@@ -396,7 +409,7 @@ def _get_areas_for_params(params, models):
             for feature in query:
                 yield {
                     bodId: {
-                        'area': float(feature.area) / (1000.0 * 1000.0),  # convert to square kilometers
+                        'area': round(float(feature.area) / (1000.0 * 1000.0), 2),  # convert to square kilometers
                         'groupby': params.groupby[groupbyIdx] if params.groupby is not None else None,
                         'groupbyvalue': feature.groupbyValue if hasattr(feature, 'groupbyValue') else None
                     }
@@ -431,7 +444,6 @@ def _get_features_for_filters(params, models, maxFeatures=None, where=None):
             if params.geometry is not None:
                 geomFilter = model.geom_filter(
                     params.geometry,
-                    params.geometryType,
                     params.imageDisplay,
                     params.mapExtent,
                     params.tolerance
@@ -591,7 +603,7 @@ def _cut(request):
     models = []
     # Organize models per layer
     for layerId in layerIds:
-        modelsForLayer = models_from_name(layerId)
+        modelsForLayer = models_from_bodid(layerId)
         if modelsForLayer is not None:
             modelsPerLayer = {layerId: {'models': modelsForLayer}}
             models.append(modelsPerLayer)
