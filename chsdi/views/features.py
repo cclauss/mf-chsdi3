@@ -18,7 +18,7 @@ from chsdi.lib.validation.mapservice import MapServiceValidation
 from chsdi.lib.validation.geometryservice import GeometryServiceValidation
 from chsdi.lib.helpers import format_query
 from chsdi.lib.filters import full_text_search
-from chsdi.models import models_from_bodid, queryable_models_from_bodid, oereb_models_from_bodid
+from chsdi.models import models_from_bodid, perimeter_models_from_bodid, queryable_models_from_bodid, oereb_models_from_bodid
 from chsdi.models.bod import OerebMetadata, get_bod_model
 from chsdi.views.layers import get_layer, get_layers_metadata_for_params
 
@@ -407,6 +407,7 @@ def _get_areas_for_params(params, models):
                     geomFilter
                 )
             for feature in query:
+                # Per default return all areas even if equal to 0
                 yield {
                     bodId: {
                         'area': round(float(feature.area) / (1000.0 * 1000.0), 2),  # convert to square kilometers
@@ -603,7 +604,9 @@ def _cut(request):
     models = []
     # Organize models per layer
     for layerId in layerIds:
-        modelsForLayer = models_from_bodid(layerId)
+        modelsForLayer = perimeter_models_from_bodid(layerId)
+        if modelsForLayer is None:
+            modelsForLayer = models_from_bodid(layerId)
         if modelsForLayer is not None:
             modelsPerLayer = {layerId: {'models': modelsForLayer}}
             models.append(modelsPerLayer)

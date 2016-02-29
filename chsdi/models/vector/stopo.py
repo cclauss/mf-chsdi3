@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from sqlalchemy import Column, Text
-from sqlalchemy.types import Numeric, Boolean, Integer
+from sqlalchemy.types import Numeric, Boolean, Integer, Float
 from geoalchemy2.types import Geometry
 
-from chsdi.models import register, bases
+from chsdi.models import register, register_perimeter, bases
 from chsdi.models.vector import Vector
 
 
@@ -1058,7 +1058,18 @@ class SwissimageProduct(Base, Vector):
     the_geom = Column(Geometry(geometry_type='GEOMETRY',
                                dimension=2, srid=21781))
 
+
+class SwissimageProductPerimeter(Base, Vector):
+    __tablename__ = 'view_gridstand_simage_grat25_cms2007'
+    __table_args__ = ({'schema': 'datenstand', 'autoload': False})
+    __bodId__ = 'ch.swisstopo.swissimage-product'
+    id = Column('tilenumber', Text, primary_key=True)
+    resolution = Column('resolution', Float)
+    the_geom = Column(Geometry(geometry_type='GEOMETRY',
+                               dimension=2, srid=21781))
+
 register('ch.swisstopo.swissimage-product', SwissimageProduct)
+register_perimeter('ch.swisstopo.swissimage-product', SwissimageProductPerimeter)
 
 
 class GeolGeocoverMetadata(Base, Vector):
