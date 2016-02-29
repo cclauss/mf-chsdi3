@@ -416,6 +416,10 @@ class TestMapServiceView(TestsBase):
         self.assertEqual(resp.content_type, 'application/json')
         self.assertEqual(len(resp.json['results']), 1)
 
+    def test_find_no_boolean(self):
+        params = {'layer': 'ch.bafu.bundesinventare-bln', 'searchField': 'true', 'searchText': 'Lavaux', 'returnGeometry': 'false'}
+        self.testapp.get('/rest/services/all/MapServer/find', params=params, status=400)
+
     def test_find_exact_int(self):
         params = {'layer': 'ch.bfs.gebaeude_wohnungs_register', 'searchField': 'egid', 'searchText': '1231625', 'returnGeometry': 'false', 'contains': 'false'}
         resp = self.testapp.get('/rest/services/all/MapServer/find', params=params, status=200)
@@ -675,6 +679,10 @@ class TestMapServiceView(TestsBase):
 
     def test_features_attributes_multi_models(self):
         resp = self.testapp.get('/rest/services/api/MapServer/ch.bav.sachplan-infrastruktur-schiene_kraft/attributes/plname_de', status=200)
+        self.assertEqual(resp.content_type, 'application/json')
+
+    def test_features_attributes_multi_models_integer_colType(self):
+        resp = self.testapp.get('/rest/services/ech/MapServer/ch.swisstopo.geologie-gravimetrischer_atlas.metadata/attributes/id', status=200)
         self.assertEqual(resp.content_type, 'application/json')
 
 zlayer = 'ch.swisstopo.zeitreihen'
