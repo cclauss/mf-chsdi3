@@ -1,0 +1,21 @@
+{
+  "type": "single",
+  "geomType": "point",
+  "vectorOptions": {
+    "type": "text",
+    "property": "description",
+    "textAlign": "center",
+    "textBaseline": "middle",
+    "font": "bold 10px Helvetica",
+    "scale": 1.5,
+    "offsetX": 0,
+    "offsetY": 0,
+    "stroke": {
+      "color": "rgba(255, 255, 255, 0.7)",
+      "width": 4
+    },
+    "fill": {
+      "color": "rgba(52, 52, 52, 0.95)"
+    }
+  }
+}
