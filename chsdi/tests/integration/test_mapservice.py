@@ -416,10 +416,6 @@ class TestMapServiceView(TestsBase):
         self.assertEqual(resp.content_type, 'application/json')
         self.assertEqual(len(resp.json['results']), 1)
 
-    def test_find_no_boolean(self):
-        params = {'layer': 'ch.bafu.bundesinventare-bln', 'searchField': 'true', 'searchText': 'Lavaux', 'returnGeometry': 'false'}
-        self.testapp.get('/rest/services/all/MapServer/find', params=params, status=400)
-
     def test_find_exact_int(self):
         params = {'layer': 'ch.bfs.gebaeude_wohnungs_register', 'searchField': 'egid', 'searchText': '1231625', 'returnGeometry': 'false', 'contains': 'false'}
         resp = self.testapp.get('/rest/services/all/MapServer/find', params=params, status=200)
@@ -466,6 +462,33 @@ class TestMapServiceView(TestsBase):
     def test_find_nosearchtext(self):
         params = {'layer': 'ch.are.bauzonen', 'searchField': 'toto', 'returnGeometry': 'false'}
         self.testapp.get('/rest/services/all/MapServer/find', params=params, status=400)
+
+    def test_find_non_float(self):
+        params = {'layer': 'ch.bafu.bundesinventare-bln', 'searchField': 'bln_fl', 'searchText': '1740', 'returnGeometry': 'false', 'contains': 'false'}
+        resp = self.testapp.get('/rest/services/all/MapServer/find', params=params, status=400)
+        resp.mustcontain('Please provide a float')
+
+    def test_find_non_integer(self):
+        params = {'layer': 'ch.bafu.bundesinventare-bln', 'searchField': 'bln_obj', 'searchText': '1201.0', 'returnGeometry': 'false', 'contains': 'false'}
+        resp = self.testapp.get('/rest/services/all/MapServer/find', params=params, status=400)
+        resp.mustcontain('Please provide an integer')
+
+    def test_find_boolean_true(self):
+        params = {'layer': 'ch.swisstopo.lubis-luftbilder_farbe', 'searchField': 'orientierung', 'searchText': 'True', 'returnGeometry': 'false', 'contains': 'false'}
+        resp = self.testapp.get('/rest/services/all/MapServer/find', params=params, status=200)
+        self.assertEqual(resp.content_type, 'application/json')
+        self.assertTrue(len(resp.json['results']) > 1)
+
+    def test_find_boolean_false(self):
+        params = {'layer': 'ch.swisstopo.lubis-luftbilder_farbe', 'searchField': 'orientierung', 'searchText': 'FALSE', 'returnGeometry': 'false', 'contains': 'false'}
+        resp = self.testapp.get('/rest/services/all/MapServer/find', params=params, status=200)
+        self.assertEqual(resp.content_type, 'application/json')
+        self.assertTrue(len(resp.json['results']) > 1)
+
+    def test_find_wrong_boolean(self):
+        params = {'layer': 'ch.swisstopo.lubis-luftbilder_farbe', 'searchField': 'orientierung', 'searchText': '3190', 'returnGeometry': 'false', 'contains': 'false'}
+        resp = self.testapp.get('/rest/services/all/MapServer/find', params=params, status=400)
+        resp.mustcontain('Please provide a boolean value (true/false)')
 
     def test_find_wrong_layer(self):
         params = {'layer': 'dummy', 'searchField': 'gdename', 'returnGeometry': 'false'}
@@ -685,6 +708,12 @@ class TestMapServiceView(TestsBase):
         resp = self.testapp.get('/rest/services/ech/MapServer/ch.swisstopo.geologie-gravimetrischer_atlas.metadata/attributes/id', status=200)
         self.assertEqual(resp.content_type, 'application/json')
 
+    def test_layer_attributes_none_models(self):
+        self.testapp.get('/rest/services/ech/MapServer/wrongLayerId/attributes/id', status=400)
+
+    def test_layer_attributes_none_modelToQuery(self):
+        self.testapp.get('/rest/services/ech/MapServer/ch.swisstopo.geologie-gravimetrischer_atlas.metadata/attributes/wrongAttribute', status=400)
+
 zlayer = 'ch.swisstopo.zeitreihen'
 
 
@@ -750,6 +779,14 @@ class TestReleasesService(TestsBase):
         resp = self.testapp.get('/rest/services/all/MapServer/' + zlayer + '/releases', params=params, status=200)
         self.assertEqual(resp.content_type, 'application/json')
         self.assertTrue(len(resp.json['results']) >= 26, len(resp.json['results']))
+
+    def test_service_dummyLayer(self):
+        params = {'imageDisplay': '500,600,96',
+                  'mapExtent': '611399.9999999999,158650,690299.9999999999,198150',
+                  'geometry': '650000.0,170000.0',
+                  'geometryType': 'esriGeometryPoint'
+                  }
+        self.testapp.get('/rest/services/all/MapServer/dummyLayer/releases', params=params, status=400)
 
     # Test cases Oftringen by Kerngruppe Zeitreise
     def test_scale_100000(self):

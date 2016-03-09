@@ -258,7 +258,7 @@ def _identify(request):
         layerId in layerIds
         if models_from_bodid(layerId) is not None
     ]
-    if models is None:    # pragma: no cover
+    if models is None:  # pragma: no cover
         raise exc.HTTPBadRequest('No GeoTable was found for %s' % ' '.join(layerIds))
 
     maxFeatures = 201
@@ -424,7 +424,7 @@ def _attributes(request):
 
     models = models_from_bodid(params.layerId)
 
-    if models is None:   # pragma: no cover
+    if models is None:
         raise exc.HTTPBadRequest('No Vector Table was found for %s' % params.layerId)
 
     # Check that the attribute provided is found at least in one model
@@ -434,7 +434,7 @@ def _attributes(request):
         if params.attribute in attributes:
             modelToQuery = model
             break
-    if modelToQuery is None:    # pragma: no cover
+    if modelToQuery is None:
         raise exc.HTTPBadRequest('No attribute %s was found for %s' % (params.attribute, params.layerId))
 
     col = modelToQuery.get_column_by_property_name(params.attribute)
@@ -494,17 +494,22 @@ def _find(request):
 def _format_search_text(columnType, searchText):
     if isinstance(columnType, Text):
         return searchText
-    elif isinstance(columnType, Boolean):  # pragma: no cover
-        raise exc.HTTPBadRequest('Please do not provide boolean value to the %s' % (columnType))
+    elif isinstance(columnType, Boolean):
+        if searchText.lower() == 'true':
+            return True
+        elif searchText.lower() == 'false':
+            return False
+        else:
+            raise exc.HTTPBadRequest('Please provide a boolean value (true/false)')
     elif isinstance(columnType, Integer):
         if searchText.isdigit():
             return int(searchText)
-        else:  # pragma: no cover
+        else:
             raise exc.HTTPBadRequest('Please provide an integer')
     elif isinstance(columnType, Numeric):
         if re.match('^\d+?\.\d+?$', searchText) is not None:
             return float(searchText)
-        else:  # pragma: no cover
+        else:
             raise exc.HTTPBadRequest('Please provide a float')
     elif isinstance(columnType, Geometry):  # pragma: no cover
         raise exc.HTTPBadRequest('Find operations cannot be performed on geometry columns')
