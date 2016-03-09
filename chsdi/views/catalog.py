@@ -87,8 +87,6 @@ class CatalogService(MapNameValidation):
                     path = node['path'].split('/')
                     if len(path) > 0:
                         root = path[0]
-                else:
-                    return nodes_final
                 node = cleanNode(node)
                 if i == 0:
                     nodes_final[root] = node
@@ -100,7 +98,7 @@ class CatalogService(MapNameValidation):
                         if idx is not None:
                             try:
                                 nodes_final[root]['children'][idx]['children'].append(node)
-                            except:
+                            except:  # pragma: no cover
                                 pass
                 elif i == 3:
                     if len(path) >= 2:
@@ -109,7 +107,7 @@ class CatalogService(MapNameValidation):
                         if idx_1 is not None and idx_2 is not None:
                             try:
                                 nodes_final[root]['children'][idx_1]['children'][idx_2]['children'].append(node)
-                            except:
+                            except:  # pragma: no cover
                                 pass
                 elif i == 4:
                     if len(path) >= 3:
@@ -119,7 +117,7 @@ class CatalogService(MapNameValidation):
                         if idx_1 is not None and idx_2 is not None and idx_3 is not None:
                             try:
                                 nodes_final[root]['children'][idx_1]['children'][idx_2]['children'][idx_3]['children'].append(node)
-                            except:
+                            except:  # pragma: no cover
                                 pass
 
         return nodes_final
