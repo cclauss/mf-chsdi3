@@ -258,7 +258,7 @@ def _identify(request):
         layerId in layerIds
         if models_from_bodid(layerId) is not None
     ]
-    if models is None:  # pragma: no cover
+    if len(models) == 0:
         raise exc.HTTPBadRequest('No GeoTable was found for %s' % ' '.join(layerIds))
 
     maxFeatures = 201

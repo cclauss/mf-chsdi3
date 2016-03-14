@@ -121,6 +121,9 @@ class TestMapServiceView(TestsBase):
                   'mapExtent': '600000,147956,549402,148103.5', 'tolerance': '0', 'layers': 'all:ch.bafu.bundesinventare-bln'}
         resp = self.testapp.get('/rest/services/all/MapServer/identify', params=params, status=400)
         resp.mustcontain('Please provide a valid geometry')
+        params = {'geometryType': 'esriGeometryEnvelope', 'geometry': 'the_geom', 'imageDisplay': '500,600,96', 'mapExtent': '548945.5,147956,549402,148103.5', 'tolerance': '1', 'layers': 'all'}
+        resp = self.testapp.get('/rest/services/ech/MapServer/identify', params=params, status=400)
+        resp.mustcontain('Please provide a valid geometry')
         params = {'geometry': '{"rings":[[[675000,245000],[670000,255000],[680000,260000],[690000,255000],[685000,240000],[675000,245000]]]}', 'geometryType': 'esriGeometryPolygon', 'imageDisplay': '500,NaN,96',
                   'mapExtent': '548945.5,147956,549402,148103.5', 'tolerance': '0', 'layers': 'all:ch.bafu.bundesinventare-bln'}
         resp = self.testapp.get('/rest/services/all/MapServer/identify', params=params, status=400)
@@ -136,6 +139,12 @@ class TestMapServiceView(TestsBase):
                   'mapExtent': '679364.12,250588.34,684164.12,251718.34', 'tolerance': '0'}
         resp = self.testapp.get('/rest/services/all/MapServer/identify', params=params, status=200)
         self.assertEqual(len(resp.json['results']), 1)
+
+    def test_identify_zero_length_models(self):
+        params = {'geometry': '681999,251083,682146,251190', 'geometryFormat': 'geojson', 'geometryType': 'esriGeometryEnvelope',
+                  'imageDisplay': '1920,452,96', 'layers': 'all:dummyLayer',
+                  'mapExtent': '679364.12,250588.34,684164.12,251718.34', 'tolerance': '0'}
+        self.testapp.get('/rest/services/all/MapServer/identify', params=params, status=400)
 
     def test_identify_valid(self):
         params = {'geometry': '548945.5,147956,549402,148103.5', 'geometryType': 'esriGeometryEnvelope', 'imageDisplay': '500,600,96', 'mapExtent': '548945.5,147956,549402,148103.5', 'tolerance': '1', 'layers': 'all'}
