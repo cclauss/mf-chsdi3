@@ -6737,7 +6737,7 @@ msgid "tt_bebautefl"
 msgstr "Bebaute Flächen"
 
 msgid "tt_bfe_geschw_wind_durchschnitt"
-msgstr "Durchscnittliche Windgeschwindigkeit"
+msgstr "Durchschnittliche Windgeschwindigkeit"
 
 msgid "tt_bfe_geschwindigkeit"
 msgstr "Geschwindigkeit (m/s)"
@@ -6756,6 +6756,9 @@ msgstr "Koordinaten (X / Y)"
 
 msgid "tt_bfe_mittlere_geschw"
 msgstr "Mittlere Geschwindigkeit"
+
+msgid "tt_bfe_windgeschwindigkeit"
+msgstr "Windgeschwindigkeit"
 
 msgid "tt_bfe_windrichtung"
 msgstr "Windrichtung"

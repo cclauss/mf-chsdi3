@@ -6757,6 +6757,9 @@ msgstr "Coordonnées (X / Y)"
 msgid "tt_bfe_mittlere_geschw"
 msgstr "Vitesse moyenne"
 
+msgid "tt_bfe_windgeschwindigkeit"
+msgstr "Vitesse du vent"
+
 msgid "tt_bfe_windrichtung"
 msgstr "Direction du vent"
 
