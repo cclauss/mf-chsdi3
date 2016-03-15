@@ -17,7 +17,7 @@ from sqlalchemy import text
 from geoalchemy2.types import Geometry
 
 from chsdi.lib.validation.mapservice import MapServiceValidation
-from chsdi.lib.helpers import format_query
+from chsdi.lib.helpers import format_query, decompress_gzipped_string
 from chsdi.lib.filters import full_text_search
 from chsdi.models import models_from_bodid, queryable_models_from_bodid, oereb_models_from_bodid
 from chsdi.models.clientdata_dynamodb import get_bucket
@@ -291,10 +291,7 @@ def _identify_grid(params, layerBodIds):
 
     pointCoordinates = geometry.coordinates
 
-    # TODO change bucket and profile names
-    # To work with pserve use your own profilename
-    testProfilename = params.request.registry.settings['boto_test_profilename']
-    bucket = get_bucket(profile_name=testProfilename, bucket_name='waf-wmts-test')
+    bucket = get_bucket(profile_name='chsdi_aws_admin_ro', bucket_name='mwks6dv2y5dsbbgg-vectortiles')
     for layer in layerBodIds:
         [layerBodId, gridSpec] = next(layer.iteritems())
         params.layerId = layerBodId
@@ -354,10 +351,7 @@ def _get_features(params, extended=False):
 
     for featureId in featureIds:
         if gridSpec:
-            # TODO change bucket and profile names
-            # To work with pserve use your own profilename
-            testProfilename = params.request.registry.settings['boto_test_profilename']
-            bucket = get_bucket(profile_name=testProfilename, bucket_name='waf-wmts-test')
+            bucket = get_bucket(profile_name='chsdi_aws_admin_ro', bucket_name='mwks6dv2y5dsbbgg-vectortiles')
             # By convention
             col, row = featureId.split('_')
             grid = Grid(gridSpec.get('extent'),
@@ -403,7 +397,7 @@ def _get_feature_grid(col, row, timestamp, grid, bucket, params):
     featureS3Key = bucket.get_key(featureS3KeyName)
     # Fail gracefully if the key doesn't exist
     if featureS3Key:
-        featureJson = featureS3Key.get_contents_as_string()
+        featureJson = decompress_gzipped_string(featureS3Key.get_contents_as_string())
         # Beacause of esriJSON design and papyrus no esrijson support for now
         feature = geojson.loads(featureJson)
         if not params.returnGeometry:

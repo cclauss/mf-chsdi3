@@ -4250,13 +4250,11 @@ msgstr "No de Point"
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata"
 msgstr "Atlas gravimétrique 100 - papier"
 
-#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
-msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
+msgstr "N°"
 
-#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
-msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
+msgstr "Titre"
 
 msgid "ch.swisstopo.geologie-hydrogeologische_karte-grundwasservorkommen"
 msgstr "Réservoirs aquifères 500"

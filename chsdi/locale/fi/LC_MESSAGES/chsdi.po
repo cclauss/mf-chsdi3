@@ -4250,13 +4250,11 @@ msgstr "Punktnummer"
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata"
 msgstr "Atlas gravimetric 100 - stampa"
 
-#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
-msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
+msgstr "Nr."
 
-#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
-msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
+msgstr "Title"
 
 msgid "ch.swisstopo.geologie-hydrogeologische_karte-grundwasservorkommen"
 msgstr "Resursas d'aua sutterrana"
