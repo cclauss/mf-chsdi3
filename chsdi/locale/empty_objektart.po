@@ -1,0 +1,14 @@
+msgid "Pass"
+msgstr ""
+
+msgid "Gipfel"
+msgstr ""
+
+msgid "Hauptgipfel"
+msgstr ""
+
+msgid "Campingplatz"
+msgstr ""
+
+msgid "Gletscher"
+msgstr ""

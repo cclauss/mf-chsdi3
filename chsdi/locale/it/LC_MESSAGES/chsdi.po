@@ -4250,11 +4250,13 @@ msgstr "No de Point"
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata"
 msgstr "Atlante gravimetrico 100 - stampato"
 
+#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
-msgstr "N°"
+msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
 
+#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
-msgstr "Titolo"
+msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
 
 msgid "ch.swisstopo.geologie-hydrogeologische_karte-grundwasservorkommen"
 msgstr "Falde acquifere 500"

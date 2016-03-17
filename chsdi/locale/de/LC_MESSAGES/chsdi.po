@@ -4250,11 +4250,13 @@ msgstr "Punktnummer"
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata"
 msgstr "Gravimetrischer Atlas 100 - Papier"
 
+#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
-msgstr "Nr."
+msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.id"
 
+#. TODO
 msgid "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
-msgstr "Titel"
+msgstr "ch.swisstopo.geologie-gravimetrischer_atlas.metadata.titel"
 
 msgid "ch.swisstopo.geologie-hydrogeologische_karte-grundwasservorkommen"
 msgstr "Grundwasservorkommen 500"
@@ -4740,7 +4742,7 @@ msgid "ch.swisstopo.sgtk"
 msgstr "swisstopo, sgtk"
 
 msgid "ch.swisstopo.skitourenkarte-50.metadata"
-msgstr "Schneeschuh-/Skitouren 1:50 000"
+msgstr "Schneeschuh- und Skitourenkarten 1:50 000"
 
 msgid "ch.swisstopo.stk200-papierkarte.metadata"
 msgstr "Strassenkarte"
